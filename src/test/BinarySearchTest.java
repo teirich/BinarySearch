@@ -1,5 +1,8 @@
 package test;
 
+import java.util.Arrays;
+import java.util.Random;
+
 import main.BinarySearch;
 import main.BinarySearchIterativeImpl;
 import main.BinarySearchRecursiveImpl;
@@ -16,24 +19,42 @@ public class BinarySearchTest {
 
 		System.out.println("Recursive Algorithm Tests");
 		BinarySearch bsRecursive = new BinarySearchRecursiveImpl();
-		int recursiveTestsPassed = runTests(bsRecursive);
+		int recursiveTestsPassed = runUnitTests(bsRecursive);
 		System.out.println(recursiveTestsPassed + "/4 tests passed");
 		
 		System.out.println();
 
 		System.out.println("Iterative Algorithm Tests");
 		BinarySearch bsIterative = new BinarySearchIterativeImpl();
-		int iterativeTestsPassed = runTests(bsIterative);
+		int iterativeTestsPassed = runUnitTests(bsIterative);
 		System.out.println(iterativeTestsPassed + "/4 tests passed");
+		
+		System.out.println("====BINARY SEARCH PERFORMANCE TEST START====");
+		System.out.println("Recursive Algorithm Tests");
+		final long TEST_PERFORM_COUNT = 10;
+		long accumulatorRecursive = 0;
+		for(int i = 0; i < TEST_PERFORM_COUNT; i++){
+			accumulatorRecursive += performanceTest(bsRecursive);
+		}
+		System.out.println("Recursive tests took an average : " + (accumulatorRecursive / TEST_PERFORM_COUNT) + "ms.");
+		
+		System.out.println();
+		
+		long accumulatorIterative = 0;
+		System.out.println("Iterative Algorithm Tests");
+		for(int i = 0; i < TEST_PERFORM_COUNT; i++){
+			accumulatorIterative += performanceTest(bsIterative);
+		}
+		System.out.println("Iterative tests took an average : " + (accumulatorIterative / TEST_PERFORM_COUNT) + "ms.");
 
 	}
 
 	/**
-	 * Runs all tests for BinarySearch implementation
+	 * Runs all unit tests for BinarySearch implementation
 	 * @param bs BinarySearch instance to be tested
 	 * @return Number of tests passed
 	 */
-	public static int runTests(BinarySearch bs){
+	public static int runUnitTests(BinarySearch bs){
 		int passedCount = 0;
 		if(testValueNotFound(bs)) passedCount++;
 		if(testEdgeCases(bs)) passedCount++;
@@ -43,7 +64,7 @@ public class BinarySearchTest {
 	}
 	/**
 	 * Binary search should still find duplicate values within the array, however order cannot be guaranteed.
-	 * @param bs BinarySearch instance to be tested
+	 * @param bs BinarySearch implementation to be tested
 	 * @return Test passed?
 	 */
 	private static boolean testDuplicates(BinarySearch bs){
@@ -62,7 +83,7 @@ public class BinarySearchTest {
 	 * 		- Lowest index value
 	 * 		- Middle index value (first detected)
 	 * 		- Highest index value
-	 * @param bs BinarySearch instance to be tested
+	 * @param bs BinarySearch implementation to be tested
 	 * @return Test passed?
 	 */
 	private static boolean testEdgeCases(BinarySearch bs){
@@ -92,7 +113,7 @@ public class BinarySearchTest {
 	
 	/**
 	 * Binary search should correctly report a missing index with the value -1
-	 * @param bs BinarySearch instance to be tested
+	 * @param bs BinarySearch implementation to be tested
 	 * @return Test passed?
 	 */
 	private static boolean testValueNotFound(BinarySearch bs){
@@ -114,7 +135,7 @@ public class BinarySearchTest {
 	
 	/**
 	 * Binary search should only succeed for ordered arrays.
-	 * @param bs BinarySearch instance to be tested
+	 * @param bs BinarySearch implementation to be tested
 	 * @return Test passed?
 	 */
 	private static boolean testOrderedArray(BinarySearch bs){
@@ -144,6 +165,30 @@ public class BinarySearchTest {
 		}
 		System.out.println("[SUCCESS] Value found in ordered array, index: " + reverseResult + ".");
 		return true;
+	}
+	/**
+	 * 
+	 * @param bs BinarySearch implementation to be tested.
+	 * @return Time taken to complete (in ms)
+	 */
+	private static long performanceTest(BinarySearch bs){
+		Random rand = new Random();
+		int randomArray[] = new int[10000000];
+		for(int i = 0; i < 10000000; i++){
+			randomArray[i] = rand.nextInt(10000000);
+		}
+		Arrays.sort(randomArray);
+		//uncomment below to see array & search criteria
+		//System.out.println("Array: " + Arrays.toString(randomArray));
+		int searchCriteria = rand.nextInt(10000000);
+		//System.out.println("Search criteria: " + searchCriteria);
+		long startTime = System.currentTimeMillis();
+		int result = bs.binSearch(randomArray, searchCriteria);
+		long endTime = System.currentTimeMillis();
+		long timeElapsed = endTime - startTime;
+		String message = (result == -1)? "[Value not found]" : "[Value found]";
+		System.out.println(message + " Search took " + timeElapsed + " ms.");
+		return timeElapsed;
 	}
 	
 	
